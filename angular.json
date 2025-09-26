@@ -22,7 +22,12 @@
               }
             ],
             "styles": [
+              "src/custom-theme.scss",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
+            ],
+            "scripts": [
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
             ],
             "server": "src/main.server.ts",
             "outputMode": "server",
@@ -86,5 +91,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "1dc4a959-f3bb-4920-809d-7a971deb70b0"
   }
 }

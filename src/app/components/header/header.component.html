@@ -1,0 +1,57 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+  <div class="container">
+    <a class="navbar-brand fw-bold" routerLink="/">E-Shop</a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/products" routerLinkActive="active">Products</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/cart" routerLinkActive="active">Cart</a>
+        </li>
+      </ul>
+      
+      <div class="d-flex align-items-center">
+        <div class="dropdown me-3">
+          <button class="btn btn-outline-light position-relative" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-cart3"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{ cartService.getCartCount() }}
+              <span class="visually-hidden">cart items</span>
+            </span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 300px;">
+            <h6 class="dropdown-header">Cart Items</h6>
+            <div *ngFor="let item of cartService.getCartItems()" class="dropdown-item d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <img [src]="item.product.image" [alt]="item.product.name" class="img-thumbnail me-2" style="width: 40px; height: 40px;">
+                <div>
+                  <div class="small">{{ item.product.name }}</div>
+                  <div class="text-muted small">Qty: {{ item.quantity }}</div>
+                </div>
+              </div>
+              <span class="badge bg-primary rounded-pill">${{ (item.product.price * item.quantity).toFixed(2) }}</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="d-flex justify-content-between align-items-center px-2 mb-2">
+              <strong>Total:</strong>
+              <strong>${{ cartService.getTotalPrice().toFixed(2) }}</strong>
+            </div>
+            <a class="dropdown-item text-center btn btn-light text-primary" routerLink="/cart">
+              View Cart
+            </a>
+          </div>
+        </div>
+        
+        <button class="btn btn-outline-light" routerLink="/profile">
+          <i class="bi bi-person-circle"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
