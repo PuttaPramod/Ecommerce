@@ -1,7 +1,0 @@
-[build]
-  command   = "npm run build:ssr"
-  publish   = "dist/ecommerce-app/browser"
-  functions = "dist/ecommerce-app/server"
-
-[[plugins]]
-  package = "@netlify/angular-runtime"
