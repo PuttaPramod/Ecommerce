@@ -65,6 +65,16 @@ export class ProductService {
       category: 'Electronics',
       inStock: true,
       rating: 4.6
+    },
+    {
+      id: 7,
+      name: 'Fitness Watch',
+      price: 199.99,
+      description: 'Smartwatch with fitness tracking features',
+      image: 'https://placeholder-image-service.onrender.com/image/300x300?prompt=Fitness+smartwatch+with+color+display+and+health+tracking+features&id=watch-1',
+      category: 'Electronics',
+      inStock: true,
+      rating: 4.6
     }
   ];
 

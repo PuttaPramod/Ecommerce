@@ -4,10 +4,12 @@ import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms'; // ✅ Needed for search bar [(ngModel)]
 
 @Component({
   selector: 'app-product-list',
-  imports: [CommonModule,RouterModule],
+  standalone: true, // ✅ since we’re using imports array
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css']
 })
@@ -16,6 +18,7 @@ export class ProductListComponent implements OnInit {
   filteredProducts: Product[] = [];
   categories: string[] = [];
   selectedCategory: string = '';
+  searchQuery: string = '';
 
   constructor(
     private productService: ProductService,
@@ -28,29 +31,56 @@ export class ProductListComponent implements OnInit {
     this.categories = this.productService.getCategories();
   }
 
+  /** Filter products by category and search query */
   filterByCategory(category: string): void {
     this.selectedCategory = category;
-    if (category) {
-      this.filteredProducts = this.productService.getProductsByCategory(category);
-    } else {
-      this.filteredProducts = this.products;
+    this.applyFilters();
+  }
+
+  /** Apply category + search filters */
+  applyFilters(): void {
+    let result = this.selectedCategory
+      ? this.productService.getProductsByCategory(this.selectedCategory)
+      : this.products;
+
+    if (this.searchQuery.trim()) {
+      const q = this.searchQuery.toLowerCase();
+      result = result.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q)
+      );
+    }
+
+    this.filteredProducts = result;
+  }
+
+  /** Sort products based on dropdown criteria */
+  sortBy(criteria: string): void {
+    if (criteria === 'priceAsc') {
+      this.filteredProducts.sort((a, b) => a.price - b.price);
+    } else if (criteria === 'priceDesc') {
+      this.filteredProducts.sort((a, b) => b.price - a.price);
+    } else if (criteria === 'ratingDesc') {
+      this.filteredProducts.sort((a, b) => b.rating - a.rating);
     }
   }
 
+  /** Add product to cart + show toast */
   addToCart(product: Product): void {
     this.cartService.addToCart(product);
-    // Show Bootstrap toast notification
     this.showToast('Product added to cart!');
   }
 
+  /** Show Bootstrap toast */
   private showToast(message: string): void {
-    // This would typically use a toast service, but for simplicity:
     const toastElement = document.getElementById('liveToast');
     const toastBody = document.querySelector('.toast-body');
     if (toastBody) {
       toastBody.textContent = message;
     }
-    const toast = new (window as any).bootstrap.Toast(toastElement);
-    toast.show();
+    if (toastElement) {
+      const toast = new (window as any).bootstrap.Toast(toastElement);
+      toast.show();
+    }
   }
 }

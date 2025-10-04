@@ -1,0 +1,168 @@
+/* Container and Typography */
+.container {
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.section-title {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Sidebar Filter Card */
+.filter-card {
+  background: #fff;
+}
+
+.filter-card h5 {
+  font-size: 1.1rem;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.5rem;
+}
+
+.dropdown-item{
+  cursor: pointer;
+}
+
+.dropdown-item:hover{
+  background-color: #302c2c48;
+}
+
+.filter-btn {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.3rem;
+  background: transparent;
+  border: none;
+  color: #555;
+  font-size: 0.95rem;
+  border-radius: 0.25rem;
+  transition: background 0.3s, color 0.3s;
+}
+
+.filter-btn:hover {
+  background: #f8f9fa;
+}
+
+.filter-btn.active {
+  background: #007bff;
+  color: #fff;
+}
+
+/* Product Card */
+.product-card {
+  background: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.img-wrap {
+  height: 200px;
+  overflow: hidden;
+}
+
+.product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: scale 0.3s;
+}
+
+.product-img:hover {
+  transform: scale(1.05);
+}
+
+.card-title {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #222;
+}
+
+.card-text {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Badges */
+.category-badge {
+  background: #17a2b8;
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.rating i {
+  font-size: 0.9rem;
+}
+
+/* Price and Stock */
+.price-stock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price {
+  font-size: 1.2rem;
+  color: #e83e8c;
+  font-weight: 600;
+}
+
+.in-stock {
+  background: #28a745;
+  color: #fff;
+}
+
+.out-stock {
+  background: #dc3545;
+  color: #fff;
+}
+
+/* Buy Button */
+.btn-buy {
+  background: #e83e8c;
+  border: none;
+  color: #fff;
+  transition: background 0.3s;
+}
+
+.btn-buy:hover:not(:disabled) {
+  background: #d63384;
+}
+
+/* Toast */
+.toast-container {
+  z-index: 1080;
+}
+
+.toast {
+  min-width: 250px;
+  border-radius: 0.5rem;
+}
+/* Hover scale for cards */
+.hover-scale {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-scale:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+/* Gradient button */
+.btn-gradient {
+  background: linear-gradient(135deg, #4e73df, #1cc88a);
+  color: #fff;
+  border: none;
+}
+.btn-gradient:hover {
+  background: linear-gradient(135deg, #1cc88a, #4e73df);
+  color: #fff;
+}

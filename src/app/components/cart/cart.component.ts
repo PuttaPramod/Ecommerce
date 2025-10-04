@@ -5,9 +5,10 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-cart',
-  imports: [CommonModule,RouterModule],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './cart.component.html',
-  styleUrls: ['./cart.component.css']
+  styleUrls: ['./cart.component.css'],
 })
 export class CartComponent {
   constructor(public cartService: CartService) {}
@@ -33,7 +34,7 @@ export class CartComponent {
   }
 
   getShipping(): number {
-    return 10.00;
+    return this.cartService.getCartCount() > 0 ? 10.0 : 0;
   }
 
   getTax(): number {
