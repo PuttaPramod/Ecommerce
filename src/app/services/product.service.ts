@@ -52,7 +52,7 @@ export class ProductService {
       price: 89.99,
       description: 'Automatic coffee maker with programmable settings',
       image: 'https://placeholder-image-service.onrender.com/image/300x300?prompt=Modern+coffee+maker+with+stainless+steel+finish+and+digital+display&id=coffee-1',
-      category: 'Home',
+      category: 'Home Products',
       inStock: true,
       rating: 4.2
     },
