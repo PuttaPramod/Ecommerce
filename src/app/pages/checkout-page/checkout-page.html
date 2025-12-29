@@ -1,1 +1,330 @@
-<p>checkout-page works!</p>
+<div class="checkout-container">
+  <!-- Header -->
+  <div class="checkout-header">
+    <h1><i class="fas fa-shopping-cart me-2"></i>Checkout</h1>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Forms -->
+    <div class="col-lg-8">
+      <!-- Checkout Form -->
+      <form
+        [formGroup]="checkoutForm"
+        (ngSubmit)="onSubmit()"
+        class="checkout-form"
+        *ngIf="!orderSubmitted"
+      >
+        <!-- Shipping Information Section -->
+        <div class="form-section">
+          <h5><i class="fas fa-map-marker-alt"></i>Shipping Information</h5>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">First Name *</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="firstName"
+                [class.is-invalid]="isFieldInvalid('firstName')"
+              />
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('firstName')">
+                {{ getErrorMessage('firstName') }}
+              </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Last Name *</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="lastName"
+                [class.is-invalid]="isFieldInvalid('lastName')"
+              />
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('lastName')">
+                {{ getErrorMessage('lastName') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email Address *</label>
+            <input
+              type="email"
+              class="form-control"
+              formControlName="email"
+              [class.is-invalid]="isFieldInvalid('email')"
+            />
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('email')">
+              {{ getErrorMessage('email') }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Phone Number *</label>
+            <input
+              type="tel"
+              class="form-control"
+              formControlName="phone"
+              placeholder="1234567890"
+              [class.is-invalid]="isFieldInvalid('phone')"
+            />
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('phone')">
+              {{ getErrorMessage('phone') }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Street Address *</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="address"
+              [class.is-invalid]="isFieldInvalid('address')"
+            />
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('address')">
+              {{ getErrorMessage('address') }}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">City *</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="city"
+                [class.is-invalid]="isFieldInvalid('city')"
+              />
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('city')">
+                {{ getErrorMessage('city') }}
+              </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+              <label class="form-label">State *</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="state"
+                [class.is-invalid]="isFieldInvalid('state')"
+              />
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('state')">
+                {{ getErrorMessage('state') }}
+              </div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+              <label class="form-label">ZIP Code *</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="zip"
+                placeholder="12345"
+                [class.is-invalid]="isFieldInvalid('zip')"
+              />
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('zip')">
+                {{ getErrorMessage('zip') }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method Section -->
+        <div class="form-section">
+          <h5><i class="fas fa-credit-card"></i>Payment Method</h5>
+
+          <div class="payment-method-group">
+            <div class="payment-method">
+              <input
+                type="radio"
+                id="creditCard"
+                value="card"
+                formControlName="paymentMethod"
+              />
+              <label for="creditCard" class="payment-method-label">
+                <i class="fas fa-credit-card"></i>
+                <span>Credit Card</span>
+              </label>
+            </div>
+
+            <div class="payment-method">
+              <input
+                type="radio"
+                id="debitCard"
+                value="debit"
+                formControlName="paymentMethod"
+              />
+              <label for="debitCard" class="payment-method-label">
+                <i class="fas fa-university"></i>
+                <span>Debit Card</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Details Section -->
+        <div
+          class="form-section"
+          *ngIf="selectedPaymentMethod === 'card' || selectedPaymentMethod === 'debit'"
+        >
+          <h5><i class="fas fa-lock"></i>Card Details</h5>
+
+          <div class="mb-3">
+            <label class="form-label">Cardholder Name *</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="cardholderName"
+              [class.is-invalid]="isFieldInvalid('cardholderName')"
+            />
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('cardholderName')">
+              {{ getErrorMessage('cardholderName') }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Card Number *</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="cardNumber"
+              placeholder="1234 5678 9012 3456"
+              maxlength="19"
+              (input)="onCardNumberInput($event)"
+              [class.is-invalid]="isFieldInvalid('cardNumber')"
+            />
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('cardNumber')">
+              {{ getErrorMessage('cardNumber') }}
+            </div>
+          </div>
+
+          <div class="card-input-group">
+            <div class="mb-3">
+              <label class="form-label">Expiry Date *</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="expiry"
+                placeholder="MM/YY"
+                maxlength="5"
+                (input)="onExpiryInput($event)"
+                [class.is-invalid]="isFieldInvalid('expiry')"
+              />
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('expiry')">
+                {{ getErrorMessage('expiry') }}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">CVV *</label>
+              <input
+                type="text"
+                class="form-control"
+                formControlName="cvv"
+                placeholder="123"
+                maxlength="3"
+                (input)="onCVVInput($event)"
+                [class.is-invalid]="isFieldInvalid('cvv')"
+              />
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('cvv')">
+                {{ getErrorMessage('cvv') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-check mt-3">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="sameAddress"
+              formControlName="sameAddress"
+            />
+            <label class="form-check-label" for="sameAddress">
+              Billing address same as shipping
+            </label>
+          </div>
+        </div>
+
+        <!-- Place Order Button -->
+        <button
+          type="submit"
+          class="btn-checkout"
+          [disabled]="isSubmitting || checkoutForm.invalid || cartItems.length === 0"
+        >
+          <i class="fas fa-lock me-2"></i>
+          {{ isSubmitting ? 'Processing...' : 'Place Order' }}
+        </button>
+      </form>
+
+      <!-- Success Message -->
+      <div class="success-message" [class.show]="orderSubmitted">
+        <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h2>Order Confirmed!</h2>
+        <p>Thank you for your purchase. Your order has been successfully placed.</p>
+        <div class="order-number">{{ orderNumber }}</div>
+        <p>A confirmation email has been sent to your email address.</p>
+        <button class="btn-primary mt-4" (click)="resetCheckout()">
+          <i class="fas fa-arrow-left me-2"></i>Back to Shopping
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Column: Order Summary -->
+    <div class="col-lg-4">
+      <div class="order-summary-card">
+        <h5 style="font-weight: 600; margin-bottom: 20px; color: #212529; border-bottom: 2px solid #0d6efd; padding-bottom: 12px;">
+          Order Summary
+        </h5>
+
+        <!-- Empty Cart Message -->
+        <div *ngIf="cartItems.length === 0" class="empty-cart-message">
+          <i class="fas fa-shopping-cart"></i>
+          <h6 style="color: #6c757d; margin-top: 10px;">Your cart is empty</h6>
+          <p style="color: #adb5bd; font-size: 13px;">Add items to proceed to checkout</p>
+        </div>
+
+        <!-- Cart Items -->
+        <div *ngIf="cartItems.length > 0">
+          <!-- Items List -->
+          <div *ngFor="let item of cartItems" class="order-item">
+            <div class="item-details">
+              <h6>{{ item.name }}</h6>
+              <small>Quantity: {{ item.quantity }}</small>
+            </div>
+            <div class="item-price">${{ (item.price * item.quantity).toFixed(2) }}</div>
+          </div>
+
+          <!-- Price Summary -->
+          <div class="price-summary">
+            <div class="price-row">
+              <span>Subtotal</span>
+              <span>${{ subtotal.toFixed(2) }}</span>
+            </div>
+            <div class="price-row">
+              <span>Shipping</span>
+              <span>${{ shipping.toFixed(2) }}</span>
+            </div>
+            <div class="price-row">
+              <span>Tax (8%)</span>
+              <span>${{ tax.toFixed(2) }}</span>
+            </div>
+            <div class="price-row total">
+              <span>Total</span>
+              <span>${{ total.toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Badge -->
+        <div style="margin-top: 20px; padding: 15px; background-color: #d4edda; border-radius: 6px; text-align: center; border-left: 4px solid #198754;">
+          <i class="fas fa-shield-alt" style="color: #198754; margin-right: 8px;"></i>
+          <small style="color: #155724; font-weight: 500;">
+            Your payment is secure and encrypted
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
