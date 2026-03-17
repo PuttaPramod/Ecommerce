@@ -1,0 +1,17 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h3>Login</h3>
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <input placeholder="Email" formControlName="email" class="form-control mb-2">
+      <input type="password" placeholder="Password" formControlName="password" class="form-control mb-2">
+      <div class="text-end mb-3">
+        <a routerLink="/forgot-password" class="auth-link">Forgot Password?</a>
+      </div>
+      <button class="btn btn-auth w-100">Login</button>
+    </form>
+    <div class="signup-text">
+      Don’t have an account?
+      <a routerLink="/signup" class="auth-link">Sign up</a>
+    </div>
+  </div>
+</div>

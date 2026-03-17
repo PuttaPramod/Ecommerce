@@ -1,0 +1,45 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h3>Sign Up</h3>
+
+    <form [formGroup]="signupForm" (ngSubmit)="onSignup()">
+
+      <input
+        type="text"
+        placeholder="Name"
+        formControlName="name"
+        class="form-control mb-2"
+      />
+
+      <input
+        type="email"
+        placeholder="Email"
+        formControlName="email"
+        class="form-control mb-2"
+      />
+
+      <input
+        type="password"
+        placeholder="Password"
+        formControlName="password"
+        class="form-control mb-2"
+      />
+
+      <input
+        type="password"
+        placeholder="Confirm Password"
+        formControlName="confirmPassword"
+        class="form-control mb-3"
+      />
+
+      <button type="submit" class="btn btn-auth w-100">
+        Create Account
+      </button>
+
+    </form>
+
+    <div class="signup-text">
+      <a routerLink="/login" class="auth-link">Back to Login</a>
+    </div>
+  </div>
+</div>
