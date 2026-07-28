@@ -19,6 +19,7 @@ export class ProductListComponent implements OnInit {
   categories: string[] = [];
   selectedCategory: string = '';
   searchQuery: string = '';
+  selectedSort: string = '';
 
   constructor(
     private productService: ProductService,
@@ -27,7 +28,7 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit(): void {
     this.products = this.productService.getAllProducts();
-    this.filteredProducts = this.products;
+    this.filteredProducts = [...this.products];
     this.categories = this.productService.getCategories();
   }
 
@@ -51,16 +52,22 @@ export class ProductListComponent implements OnInit {
       );
     }
 
-    this.filteredProducts = result;
+    this.filteredProducts = [...result];
+    this.sortProducts();
   }
 
   /** Sort products based on dropdown criteria */
   sortBy(criteria: string): void {
-    if (criteria === 'priceAsc') {
+    this.selectedSort = criteria;
+    this.applyFilters();
+  }
+
+  private sortProducts(): void {
+    if (this.selectedSort === 'priceAsc') {
       this.filteredProducts.sort((a, b) => a.price - b.price);
-    } else if (criteria === 'priceDesc') {
+    } else if (this.selectedSort === 'priceDesc') {
       this.filteredProducts.sort((a, b) => b.price - a.price);
-    } else if (criteria === 'ratingDesc') {
+    } else if (this.selectedSort === 'ratingDesc') {
       this.filteredProducts.sort((a, b) => b.rating - a.rating);
     }
   }
