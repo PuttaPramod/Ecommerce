@@ -1,46 +1,7 @@
-<div class="auth-container">
-    <div class="auth-box">
-        <h2>Create Account</h2>
-        <p class="subtitle">create for login</p>
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-            <div class="form-group">
-                <input type="text" formControlName="name" placeholder="Full Name" required />
-                <small class="error" *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.hasError('required')">
-                    Name is required
-                </small>
-            </div>
-            <div class="form-group">
-                <input type="email" formControlName="email" placeholder="Email" required />
-                <small class="error" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.hasError('required')">
-                    Email is required
-                </small>
-                <small class="error" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.hasError('email')">
-                    Enter a valid email
-                </small>
-            </div>
-            <div class="form-group">
-                <input type="number" formControlName="mobile" placeholder="Mobile No" required />
-                <small class="error" *ngIf="registerForm.get('mobile')?.touched && registerForm.get('mobile')?.hasError('required')">
-                    Mobile Number is required
-                </small>
-            </div>
-            <div class="form-group">
-                <input type="password" formControlName="password" placeholder="Password" required />
-                <small class="error" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('required')">
-                    Password is required
-                </small>
-                <small class="error" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('minlength')">
-                    Password must be atleast 8 characters
-                </small>
-            </div>
-            <button type="submit"  class="btn-primary" [disabled]="registerForm.invalid">
-                Register
-            </button>
+<section class="register-page">
+  <div class="register-layout">
+    <aside class="register-aside"><p class="eyebrow">JOIN E-SHOP</p><h1>Good things are just a few clicks away.</h1><p>Create an account to keep your orders, saved items, and checkout details in one place.</p><div class="aside-benefits"><span><b>✓</b> Fast, simple checkout</span><span><b>✓</b> Easy order tracking</span><span><b>✓</b> Member-only finds</span></div><div class="aside-shape shape-one"></div><div class="aside-shape shape-two"></div></aside>
 
-            <p class="footer-text">
-                Already have an account?
-                <a routerLink="/login">Login Here</a>
-            </p>
-        </form>
-    </div>
-</div>
+    <div class="register-panel"><div class="form-head"><p class="eyebrow">CREATE ACCOUNT</p><h2>Welcome in.</h2><p>Enter your details to get started.</p></div><form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate><label>Full name<input type="text" formControlName="name" placeholder="Alex Johnson" [class.invalid]="registerForm.get('name')?.touched && registerForm.get('name')?.invalid"></label><small class="error" *ngIf="registerForm.get('name')?.touched && registerForm.get('name')?.hasError('required')">Your name is required.</small><label>Email address<input type="email" formControlName="email" placeholder="alex@example.com" [class.invalid]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"></label><small class="error" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.hasError('required')">Your email is required.</small><small class="error" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.hasError('email')">Enter a valid email address.</small><label>Mobile number<input type="tel" formControlName="mobile" placeholder="9876543210" inputmode="numeric" [class.invalid]="registerForm.get('mobile')?.touched && registerForm.get('mobile')?.invalid"></label><small class="error" *ngIf="registerForm.get('mobile')?.touched && registerForm.get('mobile')?.invalid">Enter a 10-digit mobile number.</small><label>Password<input type="password" formControlName="password" placeholder="At least 8 characters" [class.invalid]="registerForm.get('password')?.touched && registerForm.get('password')?.invalid"></label><small class="error" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">Use at least 8 characters.</small><p *ngIf="submitError" class="form-message error-message">{{ submitError }}</p><p *ngIf="successMessage" class="form-message success-message">{{ successMessage }}</p><button type="submit" [disabled]="isSubmitting">{{ isSubmitting ? 'Creating your account…' : 'Create account' }} <span>→</span></button><p class="terms">By creating an account, you agree to receive order updates from E-Shop.</p><p class="footer-text">Already have an account? <a routerLink="/login">Log in</a></p></form></div>
+  </div>
+</section>

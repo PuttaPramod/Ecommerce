@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule,Validators } from '@angular/forms';
 import { RouterLink } from "@angular/router";
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
 
 @Component({
@@ -13,7 +14,10 @@ import { AuthService } from '../../services/auth-service';
 })
 export class Register {
   registerForm:FormGroup;
-  constructor(private fb:FormBuilder,private authService:AuthService){
+  isSubmitting = false;
+  submitError = '';
+  successMessage = '';
+  constructor(private fb:FormBuilder, private authService:AuthService, private router: Router){
     this.registerForm=this.fb.group({
       name:["",[Validators.required]],
       email:["",[Validators.required,Validators.email]],
@@ -23,14 +27,27 @@ export class Register {
     )
   }
     onSubmit(){
-      console.log(this.registerForm.value);
+      if (this.registerForm.invalid) {
+        this.registerForm.markAllAsTouched();
+        this.submitError = 'Please correct the highlighted fields before creating your account.';
+        return;
+      }
+
+      this.isSubmitting = true;
+      this.submitError = '';
+      this.successMessage = '';
 
       this.authService.register(this.registerForm.value).subscribe({
         next:(data)=>{
-          console.log(data);
+          this.isSubmitting = false;
+          this.successMessage = data?.message || 'Your account has been created successfully.';
+          setTimeout(() => this.router.navigateByUrl('/login'), 700);
         },
         error:(err)=>{
-          console.log(err);
+          this.isSubmitting = false;
+          this.submitError = err?.name === 'TimeoutError'
+            ? 'The server did not respond. Make sure the backend and MongoDB are running.'
+            : err?.error?.message || 'We could not create your account. Please try again.';
         }
       })
     }

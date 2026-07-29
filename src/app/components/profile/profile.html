@@ -1,0 +1,40 @@
+<section class="profile-page" *ngIf="authService.user$ | async as user; else signedOut">
+  <div class="container">
+    <header class="profile-hero">
+      <div class="avatar">{{ user.name.charAt(0) }}</div>
+      <div><p class="eyebrow">YOUR E-SHOP ACCOUNT</p><h1>Hello, {{ user.name.split(' ')[0] }}.</h1><p>{{ user.email }} · Manage purchases, saved products and shopping details.</p></div>
+      <a routerLink="/products" class="shop-link">Continue shopping <span>→</span></a>
+    </header>
+
+    <nav class="account-nav" aria-label="Account navigation">
+      <a routerLink="/orders" routerLinkActive="active"><span class="nav-icon">▣</span><span><strong>Your orders</strong><small>Track or review purchases</small></span><b>→</b></a>
+      <a routerLink="/wishlist" routerLinkActive="active"><span class="nav-icon">♡</span><span><strong>Wishlist</strong><small>{{ wishlistService.count }} saved {{ wishlistService.count === 1 ? 'item' : 'items' }}</small></span><b>→</b></a>
+      <a routerLink="/cart"><span class="nav-icon">⌑</span><span><strong>Your cart</strong><small>{{ cartService.getCartCount() }} items ready to check out</small></span><b>→</b></a>
+    </nav>
+
+    <section class="content-card" *ngIf="activeSection === 'account'">
+      <div class="card-heading"><div><p class="eyebrow">ACCOUNT OVERVIEW</p><h2>Shopping made personal.</h2></div><span class="member-badge">E-Shop member</span></div>
+      <div class="overview-grid"><article><span>Delivery address</span><strong>{{ user.name }}</strong><p>Add an address during checkout to make future orders faster.</p></article><article><span>Payment</span><strong>Secure checkout</strong><p>Card details are handled only at checkout.</p></article><article><span>Need help?</span><strong>Support centre</strong><p>We are here to help with your shopping questions.</p></article></div>
+    </section>
+
+    <section class="content-card" *ngIf="activeSection === 'orders'">
+      <div class="card-heading"><div><p class="eyebrow">YOUR ORDERS</p><h2>Orders and returns.</h2></div><a routerLink="/products">Start shopping <span>→</span></a></div>
+      <div class="orders-loading" *ngIf="isLoadingOrders">Loading your order history…</div>
+      <p class="orders-error" *ngIf="ordersError">{{ ordersError }}</p>
+      <div class="order-list" *ngIf="!isLoadingOrders && orders.length">
+        <article class="order-row" *ngFor="let order of orders"><div><span>ORDER {{ order.orderNumber }}</span><strong>{{ order.items.length }} {{ order.items.length === 1 ? 'item' : 'items' }} · ${{ order.total.toFixed(2) }}</strong><p class="order-items">{{ orderItemSummary(order) }}</p><small>Placed {{ order.createdAt | date:'mediumDate' }}</small></div><span class="order-status">{{ order.status }}</span><a [routerLink]="['/order-confirmation', order.orderNumber]">View order →</a></article>
+      </div>
+      <div class="empty-panel" *ngIf="!isLoadingOrders && !orders.length && !ordersError"><span>▣</span><h3>No orders yet</h3><p>Once you place an order while signed in, its delivery updates will appear here.</p><a routerLink="/products">Explore products</a></div>
+    </section>
+
+    <section class="content-card" *ngIf="activeSection === 'wishlist'">
+      <div class="card-heading"><div><p class="eyebrow">SAVED FOR LATER</p><h2>Your wishlist.</h2></div><a routerLink="/products">Discover more <span>→</span></a></div>
+      <div class="wishlist-grid" *ngIf="wishlistService.items$ | async as items">
+        <article *ngFor="let item of items" class="saved-product"><img [src]="item.image" [alt]="item.name"><div><span>{{ item.category }}</span><h3>{{ item.name }}</h3><strong>${{ item.price.toFixed(2) }}</strong></div><div class="saved-actions"><button type="button" class="add-saved" [disabled]="!item.inStock" (click)="addWishlistItemToCart(item)">{{ item.inStock ? 'Add to cart' : 'Unavailable' }}</button><button type="button" (click)="wishlistService.toggle(item)">Remove</button><a [routerLink]="['/products', item.id]">View item</a></div></article>
+        <div class="empty-panel" *ngIf="!items.length"><span>♡</span><h3>Your wishlist is empty</h3><p>Tap the heart on any product to save it for later.</p><a routerLink="/products">Browse products</a></div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<ng-template #signedOut><section class="profile-page"><div class="container"><div class="empty-panel signed-out"><span>◌</span><h1>Sign in to view your account.</h1><p>Your orders, wishlist and saved shopping details will be ready for you.</p><a routerLink="/login">Sign in</a></div></div></section></ng-template>

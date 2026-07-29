@@ -1,61 +1,50 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
-  <div class="container">
-    <a class="navbar-brand fw-bold" routerLink="/">E-Shop</a>
-    
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/products" routerLinkActive="active">Products</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/cart" routerLinkActive="active">Cart</a>
-        </li>
-      </ul>
-      
-      <div class="d-flex align-items-center">
-        <div class="dropdown me-3">
-          <button class="btn btn-outline-light position-relative" type="button" data-bs-toggle="dropdown">
-            <i class="bi bi-cart3"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-              {{ cartService.getCartCount() }}
-              <span class="visually-hidden">cart items</span>
-            </span>
-          </button>
-          <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 300px;">
-            <h6 class="dropdown-header">Cart Items</h6>
-            <div *ngFor="let item of cartService.getCartItems()" class="dropdown-item d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center">
-                <img [src]="item.product.image" [alt]="item.product.name" class="img-thumbnail me-2" style="width: 40px; height: 40px;">
-                <div>
-                  <div class="small">{{ item.product.name }}</div>
-                  <div class="text-muted small">Qty: {{ item.quantity }}</div>
-                </div>
+<header class="site-header">
+  <nav class="navbar navbar-expand-lg site-nav">
+    <div class="container">
+      <a class="brand" routerLink="/" aria-label="E-Shop home">
+        <span class="brand-mark">E</span><span>E-Shop</span>
+      </a>
+
+      <button class="navbar-toggler menu-toggle" type="button" aria-controls="mainNavigation" [attr.aria-expanded]="isMenuOpen" aria-label="Toggle navigation" (click)="toggleMenu()">
+        <span></span><span></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNavigation" [class.show]="isMenuOpen">
+        <ul class="navbar-nav nav-links mx-lg-auto">
+          <li class="nav-item"><a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Home</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/products" routerLinkActive="active" (click)="closeMenu()">Shop</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/cart" routerLinkActive="active" (click)="closeMenu()">Cart</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <div class="dropdown cart-dropdown" [class.show]="isCartOpen">
+            <button class="cart-trigger" type="button" [attr.aria-expanded]="isCartOpen" aria-label="Open shopping cart" (click)="toggleCart()">
+              <span class="cart-icon" aria-hidden="true">⌑</span>
+              <span class="cart-label">Bag</span>
+              <span class="cart-count">{{ cartService.getCartCount() }}</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end cart-menu" [class.show]="isCartOpen">
+              <div class="cart-menu-heading"><span>Your bag</span><span>{{ cartService.getCartCount() }} items</span></div>
+              <div *ngIf="cartService.getCartCount() === 0" class="cart-menu-empty">Your bag is empty.</div>
+              <div *ngFor="let item of cartService.getCartItems()" class="cart-preview-item">
+                <img [src]="item.product.image" [alt]="item.product.name">
+                <div><strong>{{ item.product.name }}</strong><span>Qty {{ item.quantity }}</span></div>
+                <b>${{ (item.product.price * item.quantity).toFixed(2) }}</b>
               </div>
-              <span class="badge bg-primary rounded-pill">${{ (item.product.price * item.quantity).toFixed(2) }}</span>
+              <div *ngIf="cartService.getCartCount() > 0" class="cart-menu-total"><span>Subtotal</span><strong>${{ cartService.getTotalPrice().toFixed(2) }}</strong></div>
+              <a class="view-cart" routerLink="/cart" (click)="closeMenu()">View bag <span>→</span></a>
             </div>
-            <div class="dropdown-divider"></div>
-            <div class="d-flex justify-content-between align-items-center px-2 mb-2">
-              <strong>Total:</strong>
-              <strong>${{ cartService.getTotalPrice().toFixed(2) }}</strong>
-            </div>
-            <a class="dropdown-item text-center btn btn-light text-primary" routerLink="/cart">
-              View Cart
-            </a>
           </div>
+          <ng-container *ngIf="authService.user$ | async as user; else guestActions">
+            <a routerLink="/profile" class="account-name" (click)="closeMenu()">Hi, {{ user.name.split(' ')[0] }}</a>
+            <button class="account-link logout-link" type="button" (click)="logout()">Log out</button>
+          </ng-container>
+          <ng-template #guestActions>
+            <a routerLink="/login" class="account-link" (click)="closeMenu()">Sign in</a>
+            <a routerLink="/register" class="account-link account-cta" (click)="closeMenu()">Create account</a>
+          </ng-template>
         </div>
-        
-        <button class="btn btn-outline-light">
-          <i class="bi bi-person-circle"></i>
-        </button>
       </div>
-     
-    <a routerLink="/register" style="color: black;">Register</a>
-  
     </div>
-  </div>
-  
-</nav>
+  </nav>
+</header>

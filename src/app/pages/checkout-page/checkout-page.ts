@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { CheckoutService, OrderData } from '../../services/checkout.service';
+import { CheckoutService, OrderData, OrderDetails, SavedAddress } from '../../services/checkout.service';
 import { CartService, CartItem } from '../../services/cart.service';
-import { from } from 'rxjs';
+import { AuthService } from '../../services/auth-service';
 
 interface CheckoutItem {
   name: string;
@@ -22,6 +23,7 @@ interface CheckoutItem {
 export class CheckoutPageComponent implements OnInit {
   checkoutForm!: FormGroup;
   isSubmitting = false;
+  submitError = '';
   orderSubmitted = false;
   orderNumber = '';
   selectedPaymentMethod: 'card' | 'debit' = 'card';
@@ -32,17 +34,24 @@ export class CheckoutPageComponent implements OnInit {
   shipping = 10.0;
   tax = 0;
   total = 0;
+  savedAddresses: SavedAddress[] = [];
+  isLoadingAddresses = false;
 
   constructor(
     private formBuilder: FormBuilder,
     private checkoutService: CheckoutService,
-    private cartService: CartService  // Inject CartService
+    private cartService: CartService,
+    public authService: AuthService,
+    private router: Router,
+    private changeDetector: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
     this.setupPaymentMethodListener();
-    this.loadCartItems();
+    this.cartService.cartUpdates().subscribe(() => this.loadCartItems());
+    this.prefillAccountDetails();
+    this.loadSavedAddresses();
   }
 
   /**
@@ -98,6 +107,8 @@ export class CheckoutPageComponent implements OnInit {
       city: ['', [Validators.required]],
       state: ['', [Validators.required]],
       zip: ['', [Validators.required, Validators.pattern(/^[0-9]{5,6}$/)]],
+      saveAddress: [true],
+      makeDefault: [false],
 
       // Payment Information
       paymentMethod: ['card', Validators.required],
@@ -109,27 +120,74 @@ export class CheckoutPageComponent implements OnInit {
     });
   }
 
+  private prefillAccountDetails(): void {
+    const user = this.authService.currentUser;
+    if (!user) return;
+    const [firstName = '', ...lastName] = user.name.split(' ');
+    this.checkoutForm.patchValue({ firstName, lastName: lastName.join(' '), email: user.email, phone: user.mobile });
+  }
+
+  private loadSavedAddresses(): void {
+    const user = this.authService.currentUser;
+    if (!user) return;
+    this.isLoadingAddresses = true;
+    this.checkoutService.getAddresses(user.id).subscribe({
+      next: ({ addresses }) => {
+        this.savedAddresses = addresses;
+        this.isLoadingAddresses = false;
+        const defaultAddress = addresses.find((address) => address.isDefault);
+        if (defaultAddress) this.applySavedAddress(defaultAddress._id || '');
+        this.changeDetector.markForCheck();
+      },
+      error: () => { this.isLoadingAddresses = false; this.changeDetector.markForCheck(); },
+    });
+  }
+
+  applySavedAddress(addressId: string): void {
+    const address = this.savedAddresses.find((item) => item._id === addressId);
+    if (!address) return;
+    this.checkoutForm.patchValue({ ...address, saveAddress: true, makeDefault: address.isDefault });
+  }
+
+  useManualAddress(): void {
+    this.checkoutForm.patchValue({ address: '', city: '', state: '', zip: '', saveAddress: true, makeDefault: false });
+  }
+
+  private saveCurrentAddress(): void {
+    const user = this.authService.currentUser;
+    if (!user || !this.checkoutForm.get('saveAddress')?.value) return;
+    const values = this.checkoutForm.getRawValue();
+    const address: SavedAddress = {
+      label: 'Delivery address', firstName: values.firstName, lastName: values.lastName,
+      email: values.email, phone: values.phone, address: values.address, city: values.city,
+      state: values.state, zip: values.zip, isDefault: values.makeDefault,
+    };
+    this.checkoutService.saveAddress(user.id, address).subscribe({
+      next: ({ addresses }) => { this.savedAddresses = addresses; this.changeDetector.markForCheck(); },
+    });
+  }
+
   /**
    * Listen to payment method changes and toggle card fields
    */
   private setupPaymentMethodListener(): void {
     this.checkoutForm.get('paymentMethod')?.valueChanges.subscribe(method => {
       this.selectedPaymentMethod = method;
-      const cardFields = ['cardholderName', 'cardNumber', 'expiry', 'cvv'];
+      this.setPaymentFieldValidators(method);
+    });
+    this.setPaymentFieldValidators(this.selectedPaymentMethod);
+  }
 
+  private setPaymentFieldValidators(method: 'card' | 'debit'): void {
+    const cardFields = ['cardholderName', 'cardNumber', 'expiry', 'cvv'];
+    cardFields.forEach(field => {
+      const control = this.checkoutForm.get(field);
       if (method === 'card' || method === 'debit') {
-        cardFields.forEach(field => {
-          this.checkoutForm.get(field)?.setValidators([Validators.required]);
-        });
+        control?.setValidators([Validators.required]);
       } else {
-        cardFields.forEach(field => {
-          this.checkoutForm.get(field)?.clearValidators();
-        });
+        control?.clearValidators();
       }
-
-      cardFields.forEach(field => {
-        this.checkoutForm.get(field)?.updateValueAndValidity({ emitEvent: false });
-      });
+      control?.updateValueAndValidity({ emitEvent: false });
     });
   }
 
@@ -191,6 +249,9 @@ export class CheckoutPageComponent implements OnInit {
         return 'ZIP code must be 5-6 digits';
       }
     }
+    if (control.errors['invalidCard']) {
+      return 'Please enter a valid 16-digit card number';
+    }
 
     return 'Invalid input';
   }
@@ -209,6 +270,7 @@ export class CheckoutPageComponent implements OnInit {
    * Handle form submission
    */
   onSubmit(): void {
+    if (this.cartItems.length === 0) return;
     if (this.checkoutForm.invalid) {
       Object.keys(this.checkoutForm.controls).forEach(key => {
         this.checkoutForm.get(key)?.markAsTouched();
@@ -220,13 +282,19 @@ export class CheckoutPageComponent implements OnInit {
     const cardNumber = this.checkoutForm.get('cardNumber')?.value;
     if (!this.checkoutService.validateCardNumber(cardNumber)) {
       this.checkoutForm.get('cardNumber')?.setErrors({ 'invalidCard': true });
+      this.checkoutForm.get('cardNumber')?.markAsTouched();
       return;
     }
 
     this.isSubmitting = true;
+    this.submitError = '';
 
     // Prepare order data
+    const cardDigits = cardNumber.replace(/\s/g, '');
     const orderData: OrderData = {
+      clientId: this.cartService.getClientId(),
+      userId: this.authService.currentUser?.id,
+      items: this.cartService.getCartItems(),
       shipping: {
         firstName: this.checkoutForm.get('firstName')?.value,
         lastName: this.checkoutForm.get('lastName')?.value,
@@ -237,21 +305,17 @@ export class CheckoutPageComponent implements OnInit {
         state: this.checkoutForm.get('state')?.value,
         zip: this.checkoutForm.get('zip')?.value
       },
-      card: {
-        cardholderName: this.checkoutForm.get('cardholderName')?.value,
-        cardNumber: this.checkoutForm.get('cardNumber')?.value,
-        expiry: this.checkoutForm.get('expiry')?.value,
-        cvv: this.checkoutForm.get('cvv')?.value,
-        paymentMethod: this.checkoutForm.get('paymentMethod')?.value
-      },
-      total: this.total.toString(),
-      timestamp: new Date().toLocaleString()
+      payment: {
+        method: this.checkoutForm.get('paymentMethod')?.value,
+        last4: cardDigits.slice(-4)
+      }
     };
 
     // Submit order via service
     this.checkoutService.submitOrder(orderData).subscribe({
       next: (response) => {
-        this.handleOrderSuccess(orderData);
+        this.saveCurrentAddress();
+        this.handleOrderSuccess(response.order);
       },
       error: (error) => {
         this.handleOrderError(error);
@@ -262,19 +326,10 @@ export class CheckoutPageComponent implements OnInit {
   /**
    * Handle successful order submission
    */
-  private handleOrderSuccess(orderData: OrderData): void {
-    this.orderNumber = this.checkoutService.generateOrderNumber();
-    this.orderSubmitted = true;
+  private handleOrderSuccess(order: OrderDetails): void {
     this.isSubmitting = false;
-
-    // Clear cart after successful order
     this.cartService.clearCart();
-
-    // Log order details
-    console.log('Order submitted successfully:', {
-      orderNumber: this.orderNumber,
-      ...orderData
-    });
+    this.router.navigate(['/order-confirmation', order.orderNumber], { state: { order } });
   }
 
   /**
@@ -283,7 +338,9 @@ export class CheckoutPageComponent implements OnInit {
   private handleOrderError(error: any): void {
     console.error('Order submission failed:', error);
     this.isSubmitting = false;
-    alert('Order submission failed. Please try again.');
+    this.submitError = error?.name === 'TimeoutError'
+      ? 'The order service did not respond. Please check that the backend and MongoDB are running.'
+      : 'We could not place your order. Please check the backend connection and try again.';
   }
 
   /**

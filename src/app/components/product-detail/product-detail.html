@@ -1,1 +1,82 @@
-<p>product-detail works!</p>
+<section class="product-page" *ngIf="product; else notFound">
+    <div class="container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a routerLink="/products">Shop</a><span>›</span><a
+                routerLink="/products">{{ product.category }}</a><span>›</span><span>{{ product.name }}</span></nav>
+        <div class="product-layout">
+            <div class="product-gallery">
+                <div class="main-image"><img [src]="product.image" [alt]="product.name"></div>
+                <div class="thumbnail active"><img [src]="product.image" [alt]="product.name + ' preview'"></div>
+            </div>
+            <div class="product-information">
+                <p class="eyebrow">{{ product.category }}</p>
+                <h1>{{ product.name }}</h1>
+                <div class="rating-row"><span class="stars">★★★★★</span><a href="#details">{{ product.rating }}
+                        rating</a><span>·</span><span>Trusted by 50k+ shoppers</span></div>
+                <p class="description">{{ product.description }} Built for everyday use, with quality you can feel from
+                    the first day.</p>
+                <div class="feature-list"><span>✓ Carefully selected quality</span><span>✓ 30-day easy
+                        returns</span><span>✓ Fast, tracked delivery</span></div>
+            </div>
+            <aside class="purchase-card">
+                <p class="price">${{ product.price.toFixed(2) }}</p>
+                <p class="stock" [class.unavailable]="!product.inStock"><span>●</span> {{ product.inStock ? 'In stock
+                    and ready to ship' : 'Currently unavailable' }}</p>
+                <p class="delivery"><strong>Free delivery</strong><br>Order today for dispatch within 24 hours.</p>
+                <div class="quantity-row"><span>Quantity</span>
+                    <div class="quantity-control"><button type="button" (click)="changeQuantity(-1)"
+                            aria-label="Decrease quantity">−</button><span>{{ quantity }}</span><button type="button"
+                            (click)="changeQuantity(1)" aria-label="Increase quantity">+</button></div>
+                </div><button type="button" class="add-cart" (click)="addToCart()" [disabled]="!product.inStock">{{
+                    addedToCart ? 'Added to bag ✓' : 'Add to bag' }}</button><button type="button" class="buy-now"
+                    (click)="buyNow()" [disabled]="!product.inStock">Buy now <span>→</span></button>
+                <div class="purchase-perks"><span>⌑ Secure checkout</span><span>↺ Free 30-day returns</span><span>♧
+                        Quality checked</span></div>
+            </aside>
+        </div>
+        <section id="details" class="details-section">
+            <div>
+                <p class="eyebrow">PRODUCT DETAILS</p>
+                <h2>Made for everyday.</h2>
+            </div>
+            <div>
+                <p>Each item is selected for practical design, dependable performance, and an easy fit in your daily
+                    routine. Your order is carefully packed and comes with simple returns if it is not quite right.</p>
+                <dl>
+                    <div>
+                        <dt>Category</dt>
+                        <dd>{{ product.category }}</dd>
+                    </div>
+                    <div>
+                        <dt>Availability</dt>
+                        <dd>{{ product.inStock ? 'In stock' : 'Out of stock' }}</dd>
+                    </div>
+                    <div>
+                        <dt>Customer rating</dt>
+                        <dd>★ {{ product.rating }} / 5</dd>
+                    </div>
+                </dl>
+            </div>
+        </section>
+        <section class="related-section" *ngIf="relatedProducts.length">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">YOU MAY ALSO LIKE</p>
+                    <h2>More to explore.</h2>
+                </div><a routerLink="/products">View all <span>→</span></a>
+            </div>
+            <div class="related-grid"><a *ngFor="let item of relatedProducts" [routerLink]="['/products', item.id]"
+                    class="related-card"><img [src]="item.image" [alt]="item.name">
+                    <div><span>{{ item.category }}</span>
+                        <h3>{{ item.name }}</h3><strong>${{ item.price.toFixed(2) }}</strong>
+                    </div>
+                </a></div>
+        </section>
+    </div>
+</section>
+<ng-template #notFound>
+    <section class="not-found container">
+        <p class="eyebrow">PRODUCT NOT FOUND</p>
+        <h1>That item is no longer here.</h1>
+        <p>Browse the collection to find something new.</p><a routerLink="/products">Back to products <span>→</span></a>
+    </section>
+</ng-template>

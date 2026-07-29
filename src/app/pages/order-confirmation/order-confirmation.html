@@ -1,0 +1,73 @@
+<section class="confirmation-page">
+  <div class="container" *ngIf="isLoading">
+    <div class="loading-card">Loading your order…</div>
+  </div>
+
+  <div class="container" *ngIf="!isLoading && order as currentOrder">
+    <div class="success-banner">
+      <div class="success-mark">✓</div>
+      <div>
+        <p class="eyebrow">ORDER PLACED</p>
+        <h1>Thank you for your purchase.</h1>
+        <p>We’ve received your order and will email you when it ships.</p>
+      </div>
+      <div class="order-id"><span>Order number</span><strong>{{ currentOrder.orderNumber }}</strong></div>
+    </div>
+
+    <div class="confirmation-layout">
+      <main>
+        <section class="delivery-card">
+          <p class="eyebrow">DELIVERY UPDATES</p>
+          <h2>Your order is confirmed.</h2>
+          <div class="delivery-track">
+            <article class="complete"><span>✓</span>
+              <div><strong>Order placed</strong><small>We received your order.</small></div>
+            </article><i></i>
+            <article class="active"><span>2</span>
+              <div><strong>Preparing your order</strong><small>Usually dispatched within 24 hours.</small></div>
+            </article><i></i>
+            <article><span>3</span>
+              <div><strong>On its way</strong><small>Tracking will be emailed to you.</small></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="items-card">
+          <div class="card-title">
+            <div>
+              <p class="eyebrow">ORDER ITEMS</p>
+              <h2>{{ currentOrder.items.length }} {{ currentOrder.items.length === 1 ? 'item' : 'items' }} in your order
+              </h2>
+            </div><a routerLink="/products">Continue shopping <span>→</span></a>
+          </div>
+          <article *ngFor="let item of currentOrder.items" class="confirmed-item"><img [src]="item.image"
+              [alt]="item.name">
+            <div>
+              <h3>{{ item.name }}</h3><span>Quantity {{ item.quantity }}</span>
+            </div><strong>${{ (item.unitPrice * item.quantity).toFixed(2) }}</strong>
+          </article>
+        </section>
+      </main>
+
+      <aside class="confirmation-summary">
+        <p class="eyebrow">ORDER SUMMARY</p>
+        <div class="summary-row"><span>Subtotal</span><strong>${{ currentOrder.subtotal.toFixed(2) }}</strong></div>
+        <div class="summary-row"><span>Delivery</span><strong>${{ currentOrder.shippingAmount.toFixed(2) }}</strong>
+        </div>
+        <div class="summary-row"><span>Tax</span><strong>${{ currentOrder.tax.toFixed(2) }}</strong></div>
+        <div class="summary-total"><span>Total paid</span><strong>${{ currentOrder.total.toFixed(2) }}</strong></div>
+        <div class="address"><span>Delivering to</span><strong>{{ currentOrder.shipping.firstName }} {{
+            currentOrder.shipping.lastName }}</strong>
+          <p>{{ currentOrder.shipping.address }}<br>{{ currentOrder.shipping.city }}, {{ currentOrder.shipping.state }}
+            {{ currentOrder.shipping.zip }}</p>
+        </div><a routerLink="/products" class="shop-button">Shop again <span>→</span></a>
+      </aside>
+    </div>
+  </div>
+
+  <div class="container error-card" *ngIf="!isLoading && loadError">
+    <p class="eyebrow">ORDER UNAVAILABLE</p>
+    <h1>We couldn’t load this order.</h1>
+    <p>{{ loadError }}</p><a routerLink="/products">Return to shop <span>→</span></a>
+  </div>
+</section>

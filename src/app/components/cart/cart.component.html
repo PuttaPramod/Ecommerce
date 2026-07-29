@@ -1,123 +1,58 @@
-<div class="container my-5">
-  <div class="row g-4">
-    <!-- CART ITEMS -->
-    <div class="col-lg-8">
-      <div class="card border-0 shadow-lg rounded-4">
-        <div class="card-header bg-primary text-white rounded-top-4 d-flex justify-content-between align-items-center">
-          <h3 class="mb-0"><i class="bi bi-cart4 me-2"></i>Shopping Cart</h3>
-          <span class="badge bg-light text-primary fs-6">{{ cartService.getCartCount() }} Items</span>
-        </div>
-
-        <div class="card-body bg-light">
-          <!-- Empty Cart -->
-          <div *ngIf="cartService.getCartCount() === 0" class="text-center py-5">
-            <i class="bi bi-cart-x display-1 text-muted"></i>
-            <h4 class="mt-3 text-muted">Your cart is empty</h4>
-            <p class="text-muted mb-4">Start shopping to add items to your cart</p>
-            <a routerLink="/products" class="btn btn-primary btn-lg px-4">
-              <i class="bi bi-bag-plus me-2"></i>Continue Shopping
-            </a>
-          </div>
-
-          <!-- Cart Items -->
-          <div *ngIf="cartService.getCartCount() > 0">
-            <div
-              *ngFor="let item of cartService.getCartItems()"
-              class="d-flex align-items-center bg-white rounded-4 p-3 mb-3 shadow-sm hover-shadow"
-            >
-              <img
-                [src]="item.product.image"
-                [alt]="item.product.name"
-                class="rounded-3 me-3"
-                style="width: 90px; height: 90px; object-fit: cover;"
-              />
-
-              <div class="flex-grow-1">
-                <h5 class="fw-semibold mb-1">{{ item.product.name }}</h5>
-                <p class="text-muted small mb-1">
-                  <i class="bi bi-tag me-1"></i>{{ item.product.category }}
-                </p>
-                <span class="fw-bold text-primary">${{ item.product.price.toFixed(2) }}</span>
-              </div>
-
-              <div class="d-flex align-items-center">
-                <div class="btn-group me-3" role="group">
-                  <button
-                    class="btn btn-outline-secondary btn-sm"
-                    (click)="updateQuantity(item, item.quantity - 1)"
-                  >
-                    <i class="bi bi-dash"></i>
-                  </button>
-                  <span
-                    class="btn btn-outline-secondary btn-sm disabled bg-white fw-bold"
-                    style="min-width: 40px;"
-                  >
-                    {{ item.quantity }}
-                  </span>
-                  <button
-                    class="btn btn-outline-secondary btn-sm"
-                    (click)="updateQuantity(item, item.quantity + 1)"
-                  >
-                    <i class="bi bi-plus"></i>
-                  </button>
-                </div>
-
-                <span class="fw-bold text-success me-3" style="min-width: 90px;">
-                  ${{ (item.product.price * item.quantity).toFixed(2) }}
-                </span>
-
-                <button
-                  class="btn btn-outline-danger btn-sm rounded-circle"
-                  (click)="removeItem(item)"
-                  title="Remove item"
-                >
-                  <i class="bi bi-trash3"></i>
-                </button>
-              </div>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mt-4">
-              <button class="btn btn-outline-danger" (click)="clearCart()">
-                <i class="bi bi-x-circle me-2"></i>Clear Cart
-              </button>
-              <a routerLink="/products" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-left me-2"></i>Continue Shopping
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ORDER SUMMARY -->
-    <div class="col-lg-4">
-      <div class="card border-0 shadow-lg rounded-4 sticky-top" style="top: 20px;">
-        <div class="card-header bg-primary text-white rounded-top-4">
-          <h4 class="mb-0"><i class="bi bi-receipt me-2"></i>Order Summary</h4>
-        </div>
-        <div class="card-body bg-light">
-          <div class="d-flex justify-content-between mb-2">
-            <span>Subtotal</span>
-            <strong>${{ getSubtotal().toFixed(2) }}</strong>
-          </div>
-          <div class="d-flex justify-content-between mb-2">
-            <span>Shipping</span>
-            <strong>${{ getShipping().toFixed(2) }}</strong>
-          </div>
-          <div class="d-flex justify-content-between mb-3">
-            <span>Tax (8%)</span>
-            <strong>${{ getTax().toFixed(2) }}</strong>
-          </div>
-          <hr />
-          <div class="d-flex justify-content-between mb-4">
-            <h5>Total</h5>
-            <h5 class="text-success">${{ getTotal().toFixed(2) }}</h5>
-          </div>
-          <button class="btn btn-success w-100 btn-lg rounded-pill" routerLink="/checkout">
-            <i class="bi bi-lock-fill me-2"></i>Proceed to Checkout
-          </button>
-        </div>
+<section class="cart-page">
+  <div class="cart-intro">
+    <div class="container">
+      <p class="eyebrow">YOUR BAG</p>
+      <div class="cart-title-row">
+        <h1>Shopping cart</h1>
+        <p *ngIf="cartService.getCartCount() > 0">{{ cartService.getCartCount() }} {{ cartService.getCartCount() === 1 ? 'item' : 'items' }} selected</p>
       </div>
     </div>
   </div>
-</div>
+
+  <div class="container cart-content" *ngIf="cartService.getCartCount() > 0; else emptyCart">
+    <div class="cart-layout">
+      <div class="cart-items">
+        <div class="cart-list-heading"><span>Items</span><a routerLink="/products">Continue shopping <b>→</b></a></div>
+        <article *ngFor="let item of cartService.getCartItems()" class="cart-item">
+          <img [src]="item.product.image" [alt]="item.product.name" class="item-image">
+          <div class="item-info">
+            <p class="item-category">{{ item.product.category }}</p>
+            <h2>{{ item.product.name }}</h2>
+            <p class="item-price">${{ item.product.price.toFixed(2) }}</p>
+          </div>
+          <div class="item-actions">
+            <button type="button" class="remove-button" (click)="removeItem(item)">Remove</button>
+            <div class="quantity-control" aria-label="Quantity selector">
+              <button type="button" [attr.aria-label]="'Decrease quantity for ' + item.product.name" (click)="updateQuantity(item, item.quantity - 1)">−</button>
+              <span>{{ item.quantity }}</span>
+              <button type="button" [attr.aria-label]="'Increase quantity for ' + item.product.name" (click)="updateQuantity(item, item.quantity + 1)">+</button>
+            </div>
+            <strong class="item-total">${{ (item.product.price * item.quantity).toFixed(2) }}</strong>
+          </div>
+        </article>
+        <button type="button" class="clear-button" (click)="clearCart()">Clear cart</button>
+      </div>
+
+      <aside class="order-summary">
+        <p class="eyebrow">ORDER SUMMARY</p>
+        <h2>Ready when you are.</h2>
+        <div class="summary-row"><span>Subtotal</span><strong>${{ getSubtotal().toFixed(2) }}</strong></div>
+        <div class="summary-row"><span>Shipping</span><strong>${{ getShipping().toFixed(2) }}</strong></div>
+        <div class="summary-row"><span>Tax <small>(8%)</small></span><strong>${{ getTax().toFixed(2) }}</strong></div>
+        <div class="summary-total"><span>Total</span><strong>${{ getTotal().toFixed(2) }}</strong></div>
+        <a routerLink="/checkout" class="checkout-button">Secure checkout <span>→</span></a>
+        <p class="summary-note"><span>✓</span> Secure payments · Easy 30-day returns</p>
+      </aside>
+    </div>
+  </div>
+
+  <ng-template #emptyCart>
+    <div class="container empty-cart">
+      <div class="empty-icon" aria-hidden="true">⌑</div>
+      <p class="eyebrow">NOTHING HERE YET</p>
+      <h2>Your bag is waiting.</h2>
+      <p>Discover useful everyday finds and add the ones you love.</p>
+      <a routerLink="/products" class="checkout-button">Explore products <span>→</span></a>
+    </div>
+  </ng-template>
+</section>

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Product } from '../../models/product';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
+import { WishlistService } from '../../services/wishlist.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms'; // ✅ Needed for search bar [(ngModel)]
@@ -23,7 +24,8 @@ export class ProductListComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
-    private cartService: CartService
+    private cartService: CartService,
+    public wishlistService: WishlistService,
   ) {}
 
   ngOnInit(): void {
@@ -76,6 +78,11 @@ export class ProductListComponent implements OnInit {
   addToCart(product: Product): void {
     this.cartService.addToCart(product);
     this.showToast('Product added to cart!');
+  }
+
+  toggleWishlist(product: Product): void {
+    const added = this.wishlistService.toggle(product);
+    this.showToast(added ? 'Saved to your wishlist!' : 'Removed from your wishlist.');
   }
 
   /** Show Bootstrap toast */

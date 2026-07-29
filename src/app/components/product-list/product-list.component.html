@@ -43,11 +43,12 @@
       </div>
 
       <div *ngIf="filteredProducts.length; else emptyState" class="product-grid">
-          <article *ngFor="let product of filteredProducts" class="product-card">
+          <article *ngFor="let product of filteredProducts" class="product-card" [routerLink]="['/products', product.id]" tabindex="0" role="link">
             <div class="product-image-wrap">
               <img [src]="product.image" [alt]="product.name" class="product-image">
               <span *ngIf="product.inStock" class="stock-label">In stock</span>
               <span *ngIf="!product.inStock" class="stock-label stock-label-muted">Sold out</span>
+              <button type="button" class="wishlist-button" [class.saved]="wishlistService.has(product.id)" (click)="$event.stopPropagation(); toggleWishlist(product)" [attr.aria-label]="wishlistService.has(product.id) ? 'Remove from wishlist' : 'Add to wishlist'">{{ wishlistService.has(product.id) ? '♥' : '♡' }}</button>
             </div>
             <div class="product-details">
               <div class="product-meta"><span>{{ product.category }}</span><span class="rating">★ {{ product.rating }}</span></div>
@@ -55,7 +56,7 @@
               <p>{{ product.description }}</p>
               <div class="product-bottom">
                 <strong>${{ product.price.toFixed(2) }}</strong>
-                <button type="button" class="add-button" (click)="addToCart(product)" [disabled]="!product.inStock">
+                <button type="button" class="add-button" (click)="$event.stopPropagation(); addToCart(product)" [disabled]="!product.inStock">
                   <span>{{ product.inStock ? 'Add to cart' : 'Unavailable' }}</span><b aria-hidden="true">+</b>
                 </button>
               </div>

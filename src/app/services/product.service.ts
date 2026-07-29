@@ -1,11 +1,16 @@
-import { Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Product } from '../models/product';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private products: Product[] = [
+  private readonly storageKey = 'eshop_products';
+  private readonly apiUrl = 'http://localhost:5001/api';
+  private products: Product[] = [];
+  private readonly defaultProducts: Product[] = [
     {
       id: 1,
       name: 'Wireless Headphones',
@@ -78,6 +83,14 @@ export class ProductService {
     }
   ];
 
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: object,
+    private http: HttpClient
+  ) {
+    this.products = this.readProducts();
+    this.syncProductsToDatabase();
+  }
+
   getAllProducts(): Product[] {
     return this.products;
   }
@@ -92,5 +105,30 @@ export class ProductService {
 
   getCategories(): string[] {
     return [...new Set(this.products.map(p => p.category))];
+  }
+
+  private readProducts(): Product[] {
+    if (!isPlatformBrowser(this.platformId)) return this.defaultProducts;
+
+    try {
+      const savedProducts = localStorage.getItem(this.storageKey);
+      if (savedProducts) {
+        const parsedProducts = JSON.parse(savedProducts);
+        if (Array.isArray(parsedProducts) && parsedProducts.length) return parsedProducts;
+      }
+    } catch {
+      // Fall back to the seeded product catalogue.
+    }
+
+    localStorage.setItem(this.storageKey, JSON.stringify(this.defaultProducts));
+    return this.defaultProducts;
+  }
+
+  private syncProductsToDatabase(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    this.http.post(`${this.apiUrl}/products/seed`, { products: this.products }).subscribe({
+      error: () => console.warn('Products saved locally; MongoDB sync is unavailable.'),
+    });
   }
 }
